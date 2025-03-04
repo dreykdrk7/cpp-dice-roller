@@ -103,6 +103,14 @@ void saveResultsToFile(const std::vector<int>& results, int numLados, const std:
     std::cout << "Los resultados y estadísticas se han guardado en " << filename << std::endl;
 }
 
+void showMenu() {
+    std::cout << "\nMenú Principal:" << std::endl;
+    std::cout << "1. Realizar tiradas de dado" << std::endl;
+    std::cout << "2. Ver estadísticas de las tiradas" << std::endl;
+    std::cout << "3. Guardar resultados en un archivo" << std::endl;
+    std::cout << "4. Salir" << std::endl;
+}
+
 int main() {
 
     std::map<int, int> tiposDeDados = {
@@ -114,33 +122,65 @@ int main() {
         {20, 20}
     };
 
-    std::cout << "Seleccione el tipo de dado:" << std::endl;
-    for (const auto& dado : tiposDeDados) {
-        std::cout << "D" << dado.first << std::endl;
+    int tipoDado = 0;
+    int numTiradas = 0;
+    std::vector<int> results;
+
+    while (true)
+    {
+        showMenu();
+        int choice = getValidInput("Seleccione una opción: ");
+
+        switch (choice)
+        {
+        case 1:
+            std::cout << "Seleccione el tipo de dado:" << std::endl;
+            for (const auto& dado : tiposDeDados) {
+                std::cout << "D" << dado.first << std::endl;
+            }
+
+            tipoDado = getValidInput("Ingrese el número de lados del dado (4, 6, 8, 10, 12, 20): ");
+            while (tiposDeDados.find(tipoDado) == tiposDeDados.end()) {
+                std::cout << "Por favor, ingrese un tipo de dado válido.\n\n" << std::endl;
+                tipoDado = getValidInput("Ingrese el número de lados del dado (4, 6, 8, 10, 12, 20): ");
+            }
+
+            numTiradas = getValidInput("Ingrese el número de tiradas del dado: ");
+            while (numTiradas <= 0) {
+                std::cout << "Por favor, ingrese un número válido de tiradas (mayor que 0).\n\n" << std::endl;
+                numTiradas = getValidInput("Ingrese el número de tiradas del dado: ");
+            }
+
+            results = simulateDiceRolls(numTiradas, tipoDado);
+            break;
+        case 2:
+            if (results.empty()) {
+                std::cout << "Primero debe realizar algunas tiradas.\n\n" << std::endl;
+            } else {
+                showStatistics(results, tipoDado);
+            }
+            break;
+        case 3:
+            if (results.empty()) {
+                std::cout << "Primero debe realizar algunas tiradas.\n\n" << std::endl;
+            } else {
+                std::string saveOption;
+                std::cout << "¿Desea guardar los resultados y estadísticas en un archivo? (s/n): ";
+                std::cin >> saveOption;
+                if (saveOption == "s" || saveOption == "S") {
+                    std::cin.ignore(); // Ignorar el salto de línea pendiente
+                    std::string filename = getValidString("Ingrese el nombre del archivo (sin extensión): ") + ".txt";
+                    saveResultsToFile(results, tipoDado, filename);
+                }
+            }
+            break;
+        case 4:
+            std::cout << "Saliendo del programa. ¡Saludos!" << std::endl;
+            return 0;
+        default:
+            std::cout << "Opción no válida. Por favor, seleccione una opción válida." << std::endl;
+        }
     }
 
-    int tipoDado = getValidInput("Ingrese el número de lados del dado (4, 6, 8, 10, 12, 20): ");
-    while (tiposDeDados.find(tipoDado) == tiposDeDados.end()) {
-        std::cout << "Por favor, ingrese un tipo de dado válido." << std::endl;
-        tipoDado = getValidInput("Ingrese el número de lados del dado (4, 6, 8, 10, 12, 20): ");
-    }
-
-    int numTiradas = getValidInput("Ingrese el número de tiradas del dado: ");
-    while (numTiradas <= 0) {
-        std::cout << "Por favor, ingrese un número válido de tiradas (mayor que 0)." << std::endl;
-        numTiradas = getValidInput("Ingrese el número de tiradas del dado: ");
-    }
-
-    std::vector<int> results = simulateDiceRolls(numTiradas, tipoDado);
-    showStatistics(results, tipoDado);
-    
-    std::string saveOption;
-    std::cout << "¿Desea guardar los resultados y estadísticas en un archivo? (s/n): ";
-    std::cin >> saveOption;
-    if (saveOption == "s" || saveOption == "S") {
-        std::cin.ignore(); // Ignorar el salto de línea pendiente
-        std::string filename = getValidString("Ingrese el nombre del archivo (sin extensión): ") + ".txt";
-        saveResultsToFile(results, tipoDado, filename);
-    }
     return 0;
 }
