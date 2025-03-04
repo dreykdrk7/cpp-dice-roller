@@ -23,15 +23,21 @@ int getValidInput() {
     return numTiradas;
 }
 
-int main() {
-    std::srand(std::time(0));
-    
-    int numTiradas = getValidInput();
+// Función para simular las tiradas del dado
+void simulateDiceRolls(int numTiradas) {
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_int_distribution<> dis(1, 6);
 
     for (int i = 0; i < numTiradas; i++) {
-        int dado = std::rand() % 6 + 1;
+        int dado = dis(gen);
         std::cout << "Tirada " << i + 1 << ": " << dado << std::endl;
     }
+}
 
+int main() {
+    
+    int numTiradas = getValidInput();
+    simulateDiceRolls(numTiradas);
     return 0;
 }
