@@ -3,6 +3,8 @@
 #include <random>
 #include <map>
 #include <vector>
+#include <fstream>
+#include <string>
 
 // Función para obtener un número entero válido del usuario
 int getValidInput(const std::string& prompt) {
@@ -16,6 +18,23 @@ int getValidInput(const std::string& prompt) {
             std::cin.clear(); // Limpiar el estado de error
             std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); // Ignorar la entrada inválida
             std::cout << "Por favor, ingrese un número entero válido." << std::endl;
+        } else {
+            break;
+        }
+    }
+    return value;
+}
+
+// Función para obtener una cadena válida del usuario
+std::string getValidString(const std::string& prompt) {
+    std::string value;
+    while (true) {
+        std::cout << prompt;
+        std::getline(std::cin, value);
+
+        // Verificar si la entrada es una cadena válida
+        if (value.empty()) {
+            std::cout << "Por favor, ingrese una cadena válida." << std::endl;
         } else {
             break;
         }
@@ -55,6 +74,35 @@ void showStatistics(const std::vector<int>& results, int numLados) {
     }
 }
 
+// Función para guardar los resultados y estadísticas en un archivo
+void saveResultsToFile(const std::vector<int>& results, int numLados, const std::string& filename) {
+    std::ofstream file(filename);
+    if (!file.is_open()) {
+        std::cerr << "No se pudo abrir el archivo para escribir." << std::endl;
+        return;
+    }
+
+    file << "Resultados de las tiradas:" << std::endl;
+    for (size_t i = 0; i < results.size(); i++) {
+        file << "Tirada " << i + 1 << ": " << results[i] << std::endl;
+    }
+
+    std::map<int, int> frequency;
+    for (int result : results) {
+        frequency[result]++;
+    }
+
+    file << "\nEstadísticas de las tiradas:" << std::endl;
+    for (int i = 1; i <= numLados; i++) {
+        if (frequency[i] > 0) {
+            file << "Número " << i << ": " << frequency[i] << " veces" << std::endl;
+        }
+    }
+
+    file.close();
+    std::cout << "Los resultados y estadísticas se han guardado en " << filename << std::endl;
+}
+
 int main() {
 
     std::map<int, int> tiposDeDados = {
@@ -86,5 +134,13 @@ int main() {
     std::vector<int> results = simulateDiceRolls(numTiradas, tipoDado);
     showStatistics(results, tipoDado);
     
+    std::string saveOption;
+    std::cout << "¿Desea guardar los resultados y estadísticas en un archivo? (s/n): ";
+    std::cin >> saveOption;
+    if (saveOption == "s" || saveOption == "S") {
+        std::cin.ignore(); // Ignorar el salto de línea pendiente
+        std::string filename = getValidString("Ingrese el nombre del archivo (sin extensión): ") + ".txt";
+        saveResultsToFile(results, tipoDado, filename);
+    }
     return 0;
 }
