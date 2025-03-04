@@ -2,6 +2,7 @@
 #include <limits>
 #include <random>
 #include <map>
+#include <vector>
 
 // Función para obtener un número entero válido del usuario
 int getValidInput(const std::string& prompt) {
@@ -23,14 +24,34 @@ int getValidInput(const std::string& prompt) {
 }
 
 // Función para simular las tiradas del dado
-void simulateDiceRolls(int numTiradas, int numLados) {
+std::vector<int> simulateDiceRolls(int numTiradas, int numLados) {
     std::random_device rd;
     std::mt19937 gen(rd());
     std::uniform_int_distribution<> dis(1, numLados);
 
+    std::vector<int> results;
     for (int i = 0; i < numTiradas; i++) {
         int dado = dis(gen);
         std::cout << "Tirada " << i + 1 << ": " << dado << std::endl;
+        results.push_back(dado);
+    }
+
+    return results;
+}
+
+// Función para mostrar estadísticas de las tiradas
+void showStatistics(const std::vector<int>& results, int numLados) {
+    std::map<int, int> frequency;
+    for (int result : results) {
+        frequency[result]++;
+    }
+
+    std::cout << "\nEstadísticas de las tiradas:" << std::endl;
+    for (int i = 1; i <= numLados; i++) {
+        if (frequency[i] > 0) {
+            std::cout << "Número " << i << ": " << frequency[i] << " veces" << std::endl;
+            continue;
+        }
     }
 }
 
@@ -62,6 +83,8 @@ int main() {
         numTiradas = getValidInput("Ingrese el número de tiradas del dado: ");
     }
 
-    simulateDiceRolls(numTiradas, tipoDado);
+    std::vector<int> results = simulateDiceRolls(numTiradas, tipoDado);
+    showStatistics(results, tipoDado);
+    
     return 0;
 }
